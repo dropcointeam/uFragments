@@ -7,6 +7,7 @@ import "@nomiclabs/hardhat-etherscan";
 import 'solidity-coverage'
 import 'hardhat-gas-reporter'
 
+require('dotenv').config()
 require('./scripts/deploy')
 
 export default {
