@@ -27,8 +27,8 @@ import { Contract, Signer, BigNumber } from 'ethers'
 import { TransactionResponse } from '@ethersproject/providers'
 import { expect } from 'chai'
 
-const toUFrgDenomination = (ample: string): BigNumber =>
-  ethers.utils.parseUnits(ample, DECIMALS)
+const toUFrgDenomination = (up: string): BigNumber =>
+  ethers.utils.parseUnits(up, DECIMALS)
 
 const DECIMALS = 9
 const INITIAL_SUPPLY = ethers.utils.parseUnits('50', 6 + DECIMALS)

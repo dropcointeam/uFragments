@@ -2,8 +2,8 @@ import { ethers, upgrades } from 'hardhat'
 import { Contract, Signer, BigNumber } from 'ethers'
 import { expect } from 'chai'
 
-const toUFrgDenomination = (ample: string): BigNumber =>
-  ethers.utils.parseUnits(ample, DECIMALS)
+const toUFrgDenomination = (up: string): BigNumber =>
+  ethers.utils.parseUnits(up, DECIMALS)
 
 const DECIMALS = 9
 const INITIAL_SUPPLY = ethers.utils.parseUnits('50', 6 + DECIMALS)
@@ -64,8 +64,8 @@ describe('UFragments:Initialization', () => {
   })
 
   it('should set detailed ERC20 parameters', async function () {
-    expect(await uFragments.name()).to.eq('Ampleforth')
-    expect(await uFragments.symbol()).to.eq('AMPL')
+    expect(await uFragments.name()).to.eq('Up')
+    expect(await uFragments.symbol()).to.eq('UP')
     expect(await uFragments.decimals()).to.eq(DECIMALS)
   })
 })

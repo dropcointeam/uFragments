@@ -1,10 +1,10 @@
-# Ampleforth
+# Up
 
-[![Build Status](https://travis-ci.com/ampleforth/uFragments.svg?token=xxNsLhLrTiyG3pc78i5v&branch=master)](https://travis-ci.com/ampleforth/uFragments)&nbsp;&nbsp;[![Coverage Status](https://coveralls.io/repos/github/frgprotocol/uFragments/badge.svg?branch=master&t=GiWi8p)](https://coveralls.io/github/frgprotocol/uFragments?branch=master)
+[![Build Status](https://travis-ci.com/dropcointeam/uFragments.svg?token=xxNsLhLrTiyG3pc78i5v&branch=master)](https://travis-ci.com/dropcointeam/uFragments)&nbsp;&nbsp;[![Coverage Status](https://coveralls.io/repos/github/frgprotocol/uFragments/badge.svg?branch=master&t=GiWi8p)](https://coveralls.io/github/frgprotocol/uFragments?branch=master)
 
-Ampleforth (code name uFragments) is a decentralized elastic supply protocol. It maintains a stable unit price by adjusting supply directly to and from wallet holders. You can read the [whitepaper](https://www.ampleforth.org/paper/) for the motivation and a complete description of the protocol.
+Up (a tweak from Ampleforth, code name uFragments) is a decentralized elastic supply protocol. It maintains a stable unit price by adjusting supply directly to and from wallet holders. You can read the [whitepaper](https://www.dropcoin.net/paper/) for the motivation and a complete description of the protocol.
 
-This repository is a collection of [smart contracts](http://ampleforth.org/docs) that implement the Ampleforth protocol on the Ethereum blockchain.
+This repository is a collection of [smart contracts](http://dropcoin.net/docs) that implement the Up protocol on the Ethereum blockchain.
 
 The official mainnet addresses are:
 
@@ -49,7 +49,7 @@ There is a testnet deployment on Rinkeby. It rebases hourly using real market da
 ## Contribute
 
 To report bugs within this package, create an issue in this repository.
-For security issues, please contact dev-support@ampleforth.org.
+For security issues, please contact dev-support@dropcoin.net.
 When submitting code ensure that it is free of lint errors and has 100% test coverage.
 
 ```bash

@@ -85,8 +85,8 @@ async function exec() {
     i++
 
     console.log('Rebased iteration', i)
-    console.log('Rebased by', rebaseAmt.toString(), 'AMPL')
-    console.log('Total supply is now', postRebaseSupply.toString(), 'AMPL')
+    console.log('Rebased by', rebaseAmt.toString(), 'UP')
+    console.log('Total supply is now', postRebaseSupply.toString(), 'UP')
 
     console.log('Testing precision of 1c transfer')
     await checkBalancesAfterTransfer([deployer, user], 1)
