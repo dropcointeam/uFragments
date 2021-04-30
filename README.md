@@ -1,6 +1,6 @@
 # Up
 
-![Build Status](https://github.com/dropcointeam/uFragments/actions/workflows/ci.yml/badge.svg?branch=master)&nbsp;&nbsp;[![Coverage Status](https://coveralls.io/repos/github/dropcointeam/uFragments/badge.svg?branch=add-ci)](https://coveralls.io/github/dropcointeam/uFragments?branch=master)
+![Build Status](https://github.com/dropcointeam/uFragments/actions/workflows/ci.yml/badge.svg?branch=master)&nbsp;&nbsp;[![Coverage Status](https://coveralls.io/repos/github/dropcointeam/uFragments/badge.svg?branch=master)](https://coveralls.io/github/dropcointeam/uFragments?branch=master)
 
 Up (a tweak from Ampleforth, code name uFragments) is a decentralized elastic supply protocol. It maintains a stable unit price by adjusting supply directly to and from wallet holders. You can read the [whitepaper](https://www.dropcoin.net/paper/) for the motivation and a complete description of the protocol.
 
