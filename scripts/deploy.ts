@@ -14,55 +14,53 @@ const parseEvents = (
     .map((log) => contractInterface.parseLog(log))
     .filter((log) => log.name === eventName)
 
-task('ampl:deploy', 'Deploy ampleforth contracts').setAction(
-  async (args, bre) => {
-    console.log(args)
+task('up:deploy', 'Deploy contracts').setAction(async (args, bre) => {
+  console.log(args)
 
-    // get signers
-    const deployer = (await bre.ethers.getSigners())[0]
-    console.log('Deployer', await deployer.getAddress())
+  // get signers
+  const deployer = (await bre.ethers.getSigners())[0]
+  console.log('Deployer', await deployer.getAddress())
 
-    // set init params
-    const owner = await deployer.getAddress()
-    const BASE_CPI = bre.ethers.utils.parseUnits('1', 20)
+  // set init params
+  const owner = await deployer.getAddress()
+  const BASE_CPI = bre.ethers.utils.parseUnits('1', 20)
 
-    // deploy UFragments
-    const uFragments = await (
-      await bre.upgrades.deployProxy(
-        (await bre.ethers.getContractFactory('UFragments')).connect(deployer),
-        [owner],
-        {
-          initializer: 'initialize(address)',
-        },
-      )
-    ).deployed()
-    console.log('UFragments deployed to:', uFragments.address)
-
-    // deploy Policy
-    const uFragmentsPolicy = await (
-      await bre.upgrades.deployProxy(
-        (await bre.ethers.getContractFactory('UFragmentsPolicy')).connect(
-          deployer,
-        ),
-        [owner, uFragments.address, BASE_CPI.toString()],
-        {
-          initializer: 'initialize(address,address,uint256)',
-        },
-      )
-    ).deployed()
-    console.log('UFragmentsPolicy deployed to:', uFragmentsPolicy.address)
-
-    // deploy Orchestrator
-    const orchestrator = await (
-      await bre.ethers.getContractFactory('Orchestrator')
+  // deploy UFragments
+  const uFragments = await (
+    await bre.upgrades.deployProxy(
+      (await bre.ethers.getContractFactory('UFragments')).connect(deployer),
+      [owner],
+      {
+        initializer: 'initialize(address)',
+      },
     )
-      .connect(deployer)
-      .deploy(uFragmentsPolicy.address)
-    console.log('Orchestrator deployed to:', orchestrator.address)
-  },
-)
+  ).deployed()
+  console.log('UFragments deployed to:', uFragments.address)
 
-task('ampl:upgrade', 'Upgrade ampleforth contracts')
+  // deploy Policy
+  const uFragmentsPolicy = await (
+    await bre.upgrades.deployProxy(
+      (await bre.ethers.getContractFactory('UFragmentsPolicy')).connect(
+        deployer,
+      ),
+      [owner, uFragments.address, BASE_CPI.toString()],
+      {
+        initializer: 'initialize(address,address,uint256)',
+      },
+    )
+  ).deployed()
+  console.log('UFragmentsPolicy deployed to:', uFragmentsPolicy.address)
+
+  // deploy Orchestrator
+  const orchestrator = await (
+    await bre.ethers.getContractFactory('Orchestrator')
+  )
+    .connect(deployer)
+    .deploy(uFragmentsPolicy.address)
+  console.log('Orchestrator deployed to:', orchestrator.address)
+})
+
+task('up:upgrade', 'Upgrade contracts')
   .addParam('contract', 'which implementation contract to use')
   .addParam('address', 'which proxy address to upgrade')
   .addOptionalParam('multisig', 'which multisig address to use for upgrade')

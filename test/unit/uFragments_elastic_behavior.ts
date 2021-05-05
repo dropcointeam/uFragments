@@ -9,8 +9,8 @@ const MAX_UINT256 = ethers.BigNumber.from(2).pow(256).sub(1)
 const MAX_INT256 = ethers.BigNumber.from(2).pow(255).sub(1)
 const TOTAL_GONS = MAX_UINT256.sub(MAX_UINT256.mod(INITIAL_SUPPLY))
 
-const toUFrgDenomination = (ample: string): BigNumber =>
-  ethers.utils.parseUnits(ample, DECIMALS)
+const toUFrgDenomination = (up: string): BigNumber =>
+  ethers.utils.parseUnits(up, DECIMALS)
 
 const unitTokenAmount = toUFrgDenomination('1')
 

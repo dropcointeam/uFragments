@@ -19,11 +19,7 @@ interface IOracle {
 /**
  * @title uFragments Monetary Supply Policy
  * @dev This is an implementation of the uFragments Ideal Money protocol.
- *      uFragments operates symmetrically on expansion and contraction. It will both split and
- *      combine coins to maintain a stable unit price.
- *
- *      This component regulates the token supply of the uFragments ERC20 token in response to
- *      market oracles.
+ *      uFragments ERC20 token expands daily on a set inflation rate.
  */
 contract UFragmentsPolicy is Ownable {
     using SafeMath for uint256;
@@ -32,34 +28,17 @@ contract UFragmentsPolicy is Ownable {
 
     event LogRebase(
         uint256 indexed epoch,
-        uint256 exchangeRate,
-        uint256 cpi,
+        uint256 inflationRate,
         int256 requestedSupplyAdjustment,
         uint256 timestampSec
     );
 
     IUFragments public uFrags;
 
-    // Provides the current CPI, as an 18 decimal fixed point number.
-    IOracle public cpiOracle;
-
-    // Market oracle provides the token/USD exchange rate as an 18 decimal fixed point number.
-    // (eg) An oracle value of 1.5e18 it would mean 1 Ample is trading for $1.50.
-    IOracle public marketOracle;
-
-    // CPI value at the time of launch, as an 18 decimal fixed point number.
-    uint256 private baseCpi;
-
-    // If the current exchange rate is within this fractional distance from the target, no supply
-    // update is performed. Fixed point number--same format as the rate.
-    // (ie) abs(rate - targetRate) / targetRate < deviationThreshold, then no supply change.
-    // DECIMALS Fixed point number.
-    uint256 public deviationThreshold;
-
-    // The rebase lag parameter, used to dampen the applied supply adjustment by 1 / rebaseLag
-    // Check setRebaseLag comments for more details.
-    // Natural number, no decimal places.
-    uint256 public rebaseLag;
+    // The daily inflation rate we rebase on
+    // 6 DECIMALS Fixed point number.
+    // (eg) An inflation rate of 1900 (APY 100%), 1 token would be rebased to 1 * (1 + 0.0019) daily
+    uint256 public inflationRate;
 
     // More than this much time must pass between rebase operations.
     uint256 public minRebaseTimeIntervalSec;
@@ -77,11 +56,14 @@ contract UFragmentsPolicy is Ownable {
     // The number of rebase cycles since inception
     uint256 public epoch;
 
-    uint256 private constant DECIMALS = 18;
+    uint256 private constant DECIMALS = 6;
 
-    // Due to the expression in computeSupplyDelta(), MAX_RATE * MAX_SUPPLY must fit into an int256.
-    // Both are 18 decimals fixed point numbers.
-    uint256 private constant MAX_RATE = 10**6 * 10**DECIMALS;
+    // Due to the expression in computeSupplyDelta()
+    // MAX_RATE * MAX_SUPPLY must fit into an int256.
+    // Both are DECIMALS fixed point numbers.
+    // Max inflation rate is 100%
+    uint256 private constant MAX_RATE = 10**DECIMALS;
+
     // MAX_SUPPLY = MAX_INT256 / MAX_RATE
     uint256 private constant MAX_SUPPLY = uint256(type(int256).max) / MAX_RATE;
 
@@ -114,26 +96,8 @@ contract UFragmentsPolicy is Ownable {
 
         epoch = epoch.add(1);
 
-        uint256 cpi;
-        bool cpiValid;
-        (cpi, cpiValid) = cpiOracle.getData();
-        require(cpiValid);
-
-        uint256 targetRate = cpi.mul(10**DECIMALS).div(baseCpi);
-
-        uint256 exchangeRate;
-        bool rateValid;
-        (exchangeRate, rateValid) = marketOracle.getData();
-        require(rateValid);
-
-        if (exchangeRate > MAX_RATE) {
-            exchangeRate = MAX_RATE;
-        }
-
-        int256 supplyDelta = computeSupplyDelta(exchangeRate, targetRate);
-
-        // Apply the Dampening factor.
-        supplyDelta = supplyDelta.div(rebaseLag.toInt256Safe());
+        // int256 supplyDelta = computeSupplyDelta(exchangeRate, targetRate);
+        int256 supplyDelta = computeSupplyDelta();
 
         if (supplyDelta > 0 && uFrags.totalSupply().add(uint256(supplyDelta)) > MAX_SUPPLY) {
             supplyDelta = (MAX_SUPPLY.sub(uFrags.totalSupply())).toInt256Safe();
@@ -141,23 +105,7 @@ contract UFragmentsPolicy is Ownable {
 
         uint256 supplyAfterRebase = uFrags.rebase(epoch, supplyDelta);
         assert(supplyAfterRebase <= MAX_SUPPLY);
-        emit LogRebase(epoch, exchangeRate, cpi, supplyDelta, block.timestamp);
-    }
-
-    /**
-     * @notice Sets the reference to the CPI oracle.
-     * @param cpiOracle_ The address of the cpi oracle contract.
-     */
-    function setCpiOracle(IOracle cpiOracle_) external onlyOwner {
-        cpiOracle = cpiOracle_;
-    }
-
-    /**
-     * @notice Sets the reference to the market oracle.
-     * @param marketOracle_ The address of the market oracle contract.
-     */
-    function setMarketOracle(IOracle marketOracle_) external onlyOwner {
-        marketOracle = marketOracle_;
+        emit LogRebase(epoch, inflationRate, supplyDelta, block.timestamp);
     }
 
     /**
@@ -169,26 +117,13 @@ contract UFragmentsPolicy is Ownable {
     }
 
     /**
-     * @notice Sets the deviation threshold fraction. If the exchange rate given by the market
-     *         oracle is within this fractional distance from the targetRate, then no supply
-     *         modifications are made. DECIMALS fixed point number.
-     * @param deviationThreshold_ The new exchange rate threshold fraction.
+     * @notice Sets the daily rebase inflation rate. DECIMALS fixed point number
+     * @param inflationRate_ The new rebase inflation rate.
      */
-    function setDeviationThreshold(uint256 deviationThreshold_) external onlyOwner {
-        deviationThreshold = deviationThreshold_;
-    }
-
-    /**
-     * @notice Sets the rebase lag parameter.
-               It is used to dampen the applied supply adjustment by 1 / rebaseLag
-               If the rebase lag R, equals 1, the smallest value for R, then the full supply
-               correction is applied on each rebase cycle.
-               If it is greater than 1, then a correction of 1/R of is applied on each rebase.
-     * @param rebaseLag_ The new rebase lag parameter.
-     */
-    function setRebaseLag(uint256 rebaseLag_) external onlyOwner {
-        require(rebaseLag_ > 0);
-        rebaseLag = rebaseLag_;
+    function setInflationRate(uint256 inflationRate_) external onlyOwner {
+        require(inflationRate_ >= 0);
+        require(inflationRate_ <= MAX_RATE);
+        inflationRate = inflationRate_;
     }
 
     /**
@@ -217,15 +152,15 @@ contract UFragmentsPolicy is Ownable {
     }
 
     /**
-     * @notice A multi-chain AMPL interface method. The Ampleforth monetary policy contract
-     *         on the base-chain and XC-AmpleController contracts on the satellite-chains
+     * @notice A multi-chain UP interface method. The Up monetary policy contract
+     *         on the base-chain and XC-UpController contracts on the satellite-chains
      *         implement this method. It atomically returns two values:
      *         what the current contract believes to be,
-     *         the globalAmpleforthEpoch and globalAMPLSupply.
-     * @return globalAmpleforthEpoch The current epoch number.
-     * @return globalAMPLSupply The total supply at the current epoch.
+     *         the globalUpEpoch and globalUPSupply.
+     * @return globalUpEpoch The current epoch number.
+     * @return globalUPSupply The total supply at the current epoch.
      */
-    function globalAmpleforthEpochAndAMPLSupply() external view returns (uint256, uint256) {
+    function globalUpEpochAndUPSupply() external view returns (uint256, uint256) {
         return (epoch, uFrags.totalSupply());
     }
 
@@ -234,17 +169,18 @@ contract UFragmentsPolicy is Ownable {
      *      It is called at the time of contract creation to invoke parent class initializers and
      *      initialize the contract's state variables.
      */
-    function initialize(
-        address owner_,
-        IUFragments uFrags_,
-        uint256 baseCpi_
-    ) public initializer {
+    function initialize(address owner_, IUFragments uFrags_) public initializer {
         Ownable.initialize(owner_);
 
-        // deviationThreshold = 0.05e18 = 5e16
-        deviationThreshold = 5 * 10**(DECIMALS - 2);
-
-        rebaseLag = 30;
+        // 1*(1+0.0019)^365 ~= 100% APY
+        // inflationRate = 0.0019 * 1e6 = 1900
+        // Some inflation rate -> APY mapping:
+        // IR  100 -> APY 3.7%
+        // IR  200 -> APY 7.6%
+        // IR  500 -> APY 20%
+        // IR 1000 -> APY 44%
+        // IR 1900 -> APY 100%
+        inflationRate = 1900;
         minRebaseTimeIntervalSec = 1 days;
         rebaseWindowOffsetSec = 72000; // 8PM UTC
         rebaseWindowLengthSec = 15 minutes;
@@ -252,7 +188,6 @@ contract UFragmentsPolicy is Ownable {
         epoch = 0;
 
         uFrags = uFrags_;
-        baseCpi = baseCpi_;
     }
 
     /**
@@ -266,37 +201,10 @@ contract UFragmentsPolicy is Ownable {
     }
 
     /**
-     * @return Computes the total supply adjustment in response to the exchange rate
-     *         and the targetRate.
+     * @return Computes the total supply adjustment based on inflationRate
      */
-    function computeSupplyDelta(uint256 rate, uint256 targetRate) internal view returns (int256) {
-        if (withinDeviationThreshold(rate, targetRate)) {
-            return 0;
-        }
-
-        // supplyDelta = totalSupply * (rate - targetRate) / targetRate
-        int256 targetRateSigned = targetRate.toInt256Safe();
-        return
-            uFrags.totalSupply().toInt256Safe().mul(rate.toInt256Safe().sub(targetRateSigned)).div(
-                targetRateSigned
-            );
-    }
-
-    /**
-     * @param rate The current exchange rate, an 18 decimal fixed point number.
-     * @param targetRate The target exchange rate, an 18 decimal fixed point number.
-     * @return If the rate is within the deviation threshold from the target rate, returns true.
-     *         Otherwise, returns false.
-     */
-    function withinDeviationThreshold(uint256 rate, uint256 targetRate)
-        internal
-        view
-        returns (bool)
-    {
-        uint256 absoluteDeviationThreshold = targetRate.mul(deviationThreshold).div(10**DECIMALS);
-
-        return
-            (rate >= targetRate && rate.sub(targetRate) < absoluteDeviationThreshold) ||
-            (rate < targetRate && targetRate.sub(rate) < absoluteDeviationThreshold);
+    function computeSupplyDelta() internal view returns (int256) {
+        // supplyDelta = totalSupply * inflationRate
+        return (uFrags.totalSupply().mul(inflationRate).div(10**DECIMALS)).toInt256Safe();
     }
 }
