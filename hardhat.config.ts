@@ -20,12 +20,10 @@ export default {
       accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
     },
     kovan: {
-      url: `https://eth-rinkeby.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
-      accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
+      url: `https://kovan.infura.io/v3/${process.env.INFURA_SECRET}`,
     },
     mainnet: {
-      url: `https://eth-rinkeby.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
-      accounts: [`0x${process.env.DEPLOYER_PRIVATE_KEY}`],
+      url: `https://mainnet.infura.io/v3/${process.env.INFURA_SECRET}`,
     },
   },
   solidity: {

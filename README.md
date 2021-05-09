@@ -38,7 +38,7 @@ yarn test
 
 ## Testnets
 
-There is a testnet deployment on Rinkeby. It rebases hourly using real market data.
+There is a testnet deployment on Rinkeby. It rebases hourly.
 
 - ERC-20 Token: [0x96a4802762f8d83612900db224882db535dd5928](https://rinkeby.etherscan.io/token/0x96a4802762f8d83612900db224882db535dd5928)
 - Supply Policy: [0xD98Ced148B858c50Ac5053fB50f7F1c6c9d48799](https://rinkeby.etherscan.io/address/0xD98Ced148B858c50Ac5053fB50f7F1c6c9d48799)
