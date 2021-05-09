@@ -78,9 +78,7 @@ contract UFragmentsPolicy is Ownable {
     /**
      * @notice Initiates a new rebase operation, provided the minimum time period has elapsed.
      *
-     * @dev The supply adjustment equals (_totalSupply * DeviationFromTargetRate) / rebaseLag
-     *      Where DeviationFromTargetRate is (MarketOracleRate - targetRate) / targetRate
-     *      and targetRate is CpiOracleRate / baseCpi
+     * @dev The supply adjustment equals (_totalSupply * inflationRate)
      */
     function rebase() external onlyOrchestrator {
         require(inRebaseWindow());

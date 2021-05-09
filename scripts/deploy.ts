@@ -23,7 +23,6 @@ task('up:deploy', 'Deploy contracts').setAction(async (args, bre) => {
 
   // set init params
   const owner = await deployer.getAddress()
-  const BASE_CPI = bre.ethers.utils.parseUnits('1', 20)
 
   // deploy UFragments
   const uFragments = await (
@@ -43,21 +42,21 @@ task('up:deploy', 'Deploy contracts').setAction(async (args, bre) => {
       (await bre.ethers.getContractFactory('UFragmentsPolicy')).connect(
         deployer,
       ),
-      [owner, uFragments.address, BASE_CPI.toString()],
+      [owner, uFragments.address],
       {
-        initializer: 'initialize(address,address,uint256)',
+        initializer: 'initialize(address,address)',
       },
     )
   ).deployed()
   console.log('UFragmentsPolicy deployed to:', uFragmentsPolicy.address)
 
-  // deploy Orchestrator
-  const orchestrator = await (
-    await bre.ethers.getContractFactory('Orchestrator')
-  )
-    .connect(deployer)
-    .deploy(uFragmentsPolicy.address)
-  console.log('Orchestrator deployed to:', orchestrator.address)
+  // // deploy Orchestrator
+  // const orchestrator = await (
+  //   await bre.ethers.getContractFactory('Orchestrator')
+  // )
+  //   .connect(deployer)
+  //   .deploy(uFragmentsPolicy.address)
+  // console.log('Orchestrator deployed to:', orchestrator.address)
 })
 
 task('up:upgrade', 'Upgrade contracts')

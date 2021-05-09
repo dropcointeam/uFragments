@@ -40,11 +40,8 @@ yarn test
 
 There is a testnet deployment on Rinkeby. It rebases hourly using real market data.
 
-- ERC-20 Token: [0x027dbcA046ca156De9622cD1e2D907d375e53aa7](https://rinkeby.etherscan.io/token/0x027dbcA046ca156De9622cD1e2D907d375e53aa7)
-- Supply Policy: [0x1D2771AFC894107c4edc072e3bd15Cb7F1BCC007](https://rinkeby.etherscan.io/address/0x1D2771AFC894107c4edc072e3bd15Cb7F1BCC007)
-- Orchestrator: [0xF473604Be74A69a6bB4ebED33A91a291f6C5b5DE](https://rinkeby.etherscan.io/address/0xF473604Be74A69a6bB4ebED33A91a291f6C5b5DE)
-- Market Oracle: [0x47fB203e1d75FB2c518Cd56f3a8094D22A46aF83](https://rinkeby.etherscan.io/address/0x47fB203e1d75FB2c518Cd56f3a8094D22A46aF83)
-- CPI Oracle: [0xDB021b1B247fe2F1fa57e0A87C748Cc1E321F07F](https://rinkeby.etherscan.io/address/0xDB021b1B247fe2F1fa57e0A87C748Cc1E321F07F)
+- ERC-20 Token: [0x96a4802762f8d83612900db224882db535dd5928](https://rinkeby.etherscan.io/token/0x96a4802762f8d83612900db224882db535dd5928)
+- Supply Policy: [0xD98Ced148B858c50Ac5053fB50f7F1c6c9d48799](https://rinkeby.etherscan.io/address/0xD98Ced148B858c50Ac5053fB50f7F1c6c9d48799)
 
 ## Contribute
 
